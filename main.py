@@ -12,7 +12,7 @@ Assistant_ID = 'asst_WV5VRUEFAMd7EdQ811ju4NDc'
 import configparser
 
 from pyrogram.types import MessageEntity
-client = openai.OpenAI(api_key="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")
+client = openai.OpenAI(api_key="")
 # Создание объекта ConfigParser
 config = configparser.ConfigParser()
 
