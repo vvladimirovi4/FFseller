@@ -28,6 +28,9 @@ assistant_id = config.get('Config', 'assistant_id')
 text = config.get('Config', 'text')
 client = openai.OpenAI(api_key=openai_api_key)
 Assistant_ID = assistant_id
+price_file = 'Прайс отгрузки на регионы pdf.pdf'
+reconciliation_file = 'ДОГОВОР ФУЛФИЛМЕНТ No.docx'
+info_file = 'коротко_о_нас_без_лишних_слов!_1.pdf'
 # Инициализация Pyrogram Client
 app = Client(name="garmvs", api_id=api_id, api_hash=api_hash)
 
@@ -99,16 +102,22 @@ async def handle_chat_with_gpt(message, messageText):
         content = msg.content[0].text.value
         print(f"{role.capitalize()}: {content}")
         print(chat_sessions)
-        if content == '.':
+        if content == 'count':
             del chat_sessions[message.from_user.username]
             if price == False:
                 await app.send_document(chat_id=message.from_user.username,
-                                        document='/Users/vladimirgarmanov/Desktop/PycharmProjects/AIAssistantv2.0/прайс upseller (19.03.24).pdf')
+                                        document=price_file)
             await app.send_message(message.from_user.username, text=f"Со всеми расценками можете ознакомиться в прайсе, а также я передам Ваш контакт колегам, они помогут сделать детальный расчет.")
-            await app.send_message(chat_id='-4177314146', text=f"Клиент с ником @{message.from_user.username} готов к завершению сделки")
+            await app.send_message(chat_id=-4259116692, text=f"Клиент с ником @{message.from_user.username} готов к завершению сделки")
         elif content == 'price':
             price_sent[message.from_user.username] = True
-            await app.send_document(chat_id=message.from_user.username, document='/Users/vladimirgarmanov/Desktop/PycharmProjects/AIAssistantv2.0/прайс upseller (19.03.24).pdf')
+            await app.send_document(chat_id=message.from_user.username, document=price_file)
+        elif content == 'reconciliation':
+            price_sent[message.from_user.username] = True
+            await app.send_document(chat_id=message.from_user.username, document=reconciliation_file)
+        elif content == 'info':
+            price_sent[message.from_user.username] = True
+            await app.send_document(chat_id=message.from_user.username, document=info_file)
         else:
             await app.send_message(chat_id=message.from_user.username, text=content)
 
