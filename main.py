@@ -40,10 +40,14 @@ price_sent = {}
 chat_sessions = {}
 # Список пользователей, которым бот уже отправлял сообщения
 initiated_users = set()
+ice_request = -4259116692
+
+
 
 async def send_initial_message(user_id):
     await app.send_message(user_id,text='''Привет! Вы искали фулфилмент?
 Давайте сделаем расчет, какой у Вас товар и какое количество планируете в поставке?''')
+    #await app.send_message(chat_id=ice_request, text=f"Клиент с ником @{user_id} \nГруппа:")
     thread = client.beta.threads.create()
 
     chat_sessions[user_id] = thread.id
@@ -124,11 +128,24 @@ async def handle_chat_with_gpt(message, messageText):
 
 keywords_pattern = re.compile(r'\b(фулфилмент|прайс|расценки|доставка|услуги|договор|товары)\b',
                               re.IGNORECASE)
+
+
 @app.on_message(filters.text & filters.regex(keywords_pattern) & ~filters.private)
 async def detect_keywords_in_group(client, message):
     user_id = message.from_user.username
+
     if user_id not in initiated_users:
         await send_initial_message(user_id)
+
+    group_title = message.chat.title  # Название группы
+    group_link = f"https://t.me/{message.chat.username}" if message.chat.username else "Ссылка недоступна"
+    message_link = message.link if message.link else "Ссылка на сообщение недоступна"
+    sender_username = message.from_user.username if message.from_user.username else "Анонимный пользователь"
+    await app.send_message(chat_id=-4272792889, text=f"Клиент с ником @{user_id} \nГруппа: {group_title} \nСсылка на группу: {group_link} \nСсылка на сообщение: {message_link} \nОтправитель: @{sender_username}")
+    print(f"Сообщение из группы: {group_title}")
+    print(f"Ссылка на группу: {group_link}")
+    print(f"Ссылка на сообщение: {message_link}")
+    print(f"Отправитель: @{sender_username}")
 
 @app.on_message(filters.command("stopchat"))
 async def stop_chat(client, message):
@@ -152,6 +169,5 @@ async def private_message_handler(client, message):
     else:
         add_user(user_id)
         await handle_chat_with_gpt(message, message.text)
-
 
 app.run()

@@ -10,5 +10,5 @@ app = Client("garmvs", api_id=api_id, api_hash=api_hash)
 from pyrogram.enums.chat_type import ChatType
 app.start()
 for i in list(app.get_dialogs()):
-        if i.chat.type in (ChatType.PRIVATE, ChatType.GROUP):
-                    print(i.chat.id,i.chat.title)
+    if i.chat.type in (ChatType.PRIVATE, ChatType.GROUP):
+        print(i.chat.id,i.chat.title)
