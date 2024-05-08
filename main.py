@@ -1,3 +1,4 @@
+
 # coding=utf-8
 
 import asyncio
@@ -28,26 +29,18 @@ assistant_id = config.get('Config', 'assistant_id')
 text = config.get('Config', 'text')
 client = openai.OpenAI(api_key=openai_api_key)
 Assistant_ID = assistant_id
-price_file = 'Прайс отгрузки на регионы pdf.pdf'
-reconciliation_file = 'ДОГОВОР ФУЛФИЛМЕНТ No.docx'
-info_file = 'коротко_о_нас_без_лишних_слов!_1.pdf'
 # Инициализация Pyrogram Client
 app = Client(name="garmvs", api_id=api_id, api_hash=api_hash)
-
 # Инициализация OpenAI
 openai.api_key = openai_api_key
 price_sent = {}
 chat_sessions = {}
 # Список пользователей, которым бот уже отправлял сообщения
 initiated_users = set()
-ice_request = -4259116692
-
-
-
+price_file = 'Прайс XFULL HOME.pdf'
 async def send_initial_message(user_id):
     await app.send_message(user_id,text='''Привет! Вы искали фулфилмент?
 Давайте сделаем расчет, какой у Вас товар и какое количество планируете в поставке?''')
-    #await app.send_message(chat_id=ice_request, text=f"Клиент с ником @{user_id} \nГруппа:")
     thread = client.beta.threads.create()
 
     chat_sessions[user_id] = thread.id
@@ -73,13 +66,9 @@ async def handle_chat_with_gpt(message, messageText):
     message_answer = client.beta.threads.messages.create(
         thread_id=thread_id,
         role="user",
-        content=messageText
-
     )
     run = client.beta.threads.runs.create(
         thread_id=thread_id,
-        assistant_id=Assistant_ID,
-
     )
 
     time.sleep(10)
@@ -106,46 +95,26 @@ async def handle_chat_with_gpt(message, messageText):
         content = msg.content[0].text.value
         print(f"{role.capitalize()}: {content}")
         print(chat_sessions)
-        if content == 'count':
+        if content == '.':
             del chat_sessions[message.from_user.username]
             if price == False:
                 await app.send_document(chat_id=message.from_user.username,
-                                        document=price_file)
-            await app.send_message(message.from_user.username, text=f"Со всеми расценками можете ознакомиться в прайсе, а также я передам Ваш контакт колегам, они помогут сделать детальный расчет.")
-            await app.send_message(chat_id=-4259116692, text=f"Клиент с ником @{message.from_user.username} готов к завершению сделки")
+                                        document='прайс с кейсами.pdf')
+            await app.send_message(chat_id= -4112547863, text=f"Клиент с ником @{message.from_user.username} готов к завершению сделки")
         elif content == 'price':
             price_sent[message.from_user.username] = True
             await app.send_document(chat_id=message.from_user.username, document=price_file)
-        elif content == 'reconciliation':
-            price_sent[message.from_user.username] = True
-            await app.send_document(chat_id=message.from_user.username, document=reconciliation_file)
-        elif content == 'info':
-            price_sent[message.from_user.username] = True
-            await app.send_document(chat_id=message.from_user.username, document=info_file)
         else:
             await app.send_message(chat_id=message.from_user.username, text=content)
 
 
 keywords_pattern = re.compile(r'\b(фулфилмент|прайс|расценки|доставка|услуги|договор|товары)\b',
                               re.IGNORECASE)
-
-
 @app.on_message(filters.text & filters.regex(keywords_pattern) & ~filters.private)
 async def detect_keywords_in_group(client, message):
     user_id = message.from_user.username
-
     if user_id not in initiated_users:
         await send_initial_message(user_id)
-
-    group_title = message.chat.title  # Название группы
-    group_link = f"https://t.me/{message.chat.username}" if message.chat.username else "Ссылка недоступна"
-    message_link = message.link if message.link else "Ссылка на сообщение недоступна"
-    sender_username = message.from_user.username if message.from_user.username else "Анонимный пользователь"
-    await app.send_message(chat_id=-4272792889, text=f"Клиент с ником @{user_id} \nГруппа: {group_title} \nСсылка на группу: {group_link} \nСсылка на сообщение: {message_link} \nОтправитель: @{sender_username}")
-    print(f"Сообщение из группы: {group_title}")
-    print(f"Ссылка на группу: {group_link}")
-    print(f"Ссылка на сообщение: {message_link}")
-    print(f"Отправитель: @{sender_username}")
 
 @app.on_message(filters.command("stopchat"))
 async def stop_chat(client, message):
@@ -169,5 +138,6 @@ async def private_message_handler(client, message):
     else:
         add_user(user_id)
         await handle_chat_with_gpt(message, message.text)
+
 
 app.run()
