@@ -3,9 +3,9 @@ import json
 import asyncio
 import re
 from telethon import TelegramClient, events
-
+from telethon.tl.functions.channels import JoinChannelRequest
 # Automatically find the .json file
-json_files = [f for f in os.listdir('..') if f.endswith('.json')]
+json_files = [f for f in os.listdir('.') if f.endswith('.json')]
 
 if json_files:
     with open(json_files[0], 'r') as f:
@@ -15,7 +15,7 @@ else:
     exit()
 
 # Automatically find the .session file
-session_files = [f for f in os.listdir('..') if f.endswith('.session')]
+session_files = [f for f in os.listdir('.') if f.endswith('.session')]
 
 if session_files:
     session_name = session_files[0].replace('.session', '')
@@ -27,8 +27,11 @@ else:
 api_id = int(config_data['app_id'])
 api_hash = config_data['app_hash']
 
-# Initialize the Telegram client
-client = TelegramClient(session_name, api_id, api_hash)
+# Proxy configuration
+proxy = ('185.162.130.86', 10001, 'QPZVilhv6aR2014xtUIJ', 'RNW78Fm5')
+
+# Initialize the Telegram client with proxy
+client = TelegramClient(session_name, api_id, api_hash, proxy=('socks5', proxy[0], proxy[1], True, proxy[2], proxy[3]))
 
 # The chat ID where notifications will be sent
 notification_chat_id = -1002196552733  # Replace with your actual group/chat ID
@@ -70,7 +73,7 @@ async def message_handler(event):
 async def main():
     # Join the group @FFsellerrs at startup
     try:
-        await client.join_chat('@FFsellerrs')
+        await client(JoinChannelRequest('@FFsellerrs'))
         print("Successfully joined the group @FFsellerrs.")
     except Exception as e:
         print(f"Failed to join the group @FFsellerrs: {e}")

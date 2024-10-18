@@ -19,7 +19,7 @@ text = config.get('Config', 'text')
 Assistant_ID = assistant_id
 
 # Search for the .json file in the current directory to get api_id and api_hash
-json_files = [f for f in os.listdir('..') if f.endswith('.json')]
+json_files = [f for f in os.listdir('.') if f.endswith('.json')]
 if not json_files:
     raise FileNotFoundError("No .json file found in the current directory.")
 json_file = json_files[0]  # Assuming there is only one .json file
@@ -39,13 +39,16 @@ initiated_users = set()
 ready_clients = []
 
 # Search for the .session file in the current directory
-session_files = [f for f in os.listdir('..') if f.endswith('.session')]
+session_files = [f for f in os.listdir('.') if f.endswith('.session')]
 if not session_files:
     raise FileNotFoundError("No .session file found in the current directory.")
 session_file = session_files[0]  # Use the first .session file found
 
-# Initialize Telethon Client using the existing .session file
-client = TelegramClient(session_file, api_id, api_hash)
+# Proxy configuration
+proxy = ('185.162.130.86', 10000, 'QPZVilhv6aR2014xtUIJ', 'RNW78Fm5')
+
+# Initialize Telethon Client using the existing .session file and proxy
+client = TelegramClient(session_file, api_id, api_hash, proxy=('socks5', proxy[0], proxy[1], True, proxy[2], proxy[3]))
 
 async def send_initial_message(user_id):
     messages = [
@@ -131,7 +134,7 @@ async def handle_chat_with_gpt(event, messageText):
             else:
                 await client.send_message(event.chat_id, content)
 
-keywords_pattern = re.compile(r'\b(фулфилмент|прайс|расценки|доставка)\b', re.IGNORECASE)
+keywords_pattern = re.compile(r'(фулфилмент|прайс|расценки|доставка)', re.IGNORECASE)
 
 @client.on(events.NewMessage(pattern=keywords_pattern, incoming=True))
 async def detect_keywords_in_group(event):
