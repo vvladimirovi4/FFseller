@@ -4,6 +4,7 @@ import asyncio
 import re
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import JoinChannelRequest
+
 # Automatically find the .json file
 json_files = [f for f in os.listdir('.') if f.endswith('.json')]
 
@@ -28,17 +29,32 @@ api_id = int(config_data['app_id'])
 api_hash = config_data['app_hash']
 
 # Proxy configuration
-proxy = ('185.162.130.86', 10001, 'QPZVilhv6aR2014xtUIJ', 'RNW78Fm5')
+proxy_string = '185.162.130.86:10001:iIdwRjvyHuUDWFJAkRNV:RNW78Fm5'
+
+# Parse the proxy string
+proxy_parts = proxy_string.split(':')
+
+if len(proxy_parts) == 4:
+    proxy_ip = proxy_parts[0]
+    proxy_port = int(proxy_parts[1])
+    proxy_username = proxy_parts[2]
+    proxy_password = proxy_parts[3]
+else:
+    raise ValueError('Invalid proxy string format. Expected format is ip:port:username:password')
 
 # Initialize the Telegram client with proxy
-client = TelegramClient(session_name, api_id, api_hash, proxy=('socks5', proxy[0], proxy[1], True, proxy[2], proxy[3]))
+client = TelegramClient(
+    session_name,
+    api_id,
+    api_hash,
+    proxy=('socks5', proxy_ip, proxy_port, True, proxy_username, proxy_password)
+)
 
 # The chat ID where notifications will be sent
 notification_chat_id = -1002196552733  # Replace with your actual group/chat ID
 
 # Regular expression for detecting keywords (if needed)
 keywords_pattern = re.compile(r'\b(фулфилмент|прайс|расценки|доставка)\b', re.IGNORECASE)
-
 
 @client.on(events.NewMessage())
 async def message_handler(event):
@@ -69,7 +85,6 @@ async def message_handler(event):
 
     await client.send_message(notification_chat_id, notification_text)
 
-
 async def main():
     # Join the group @FFsellerrs at startup
     try:
@@ -80,7 +95,6 @@ async def main():
 
     # Keep the client running
     await client.run_until_disconnected()
-
 
 if __name__ == '__main__':
     with client:

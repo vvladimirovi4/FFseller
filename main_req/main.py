@@ -45,10 +45,25 @@ if not session_files:
 session_file = session_files[0]  # Use the first .session file found
 
 # Proxy configuration
-proxy = ('185.162.130.86', 10000, 'QPZVilhv6aR2014xtUIJ', 'RNW78Fm5')
+proxy_string = '185.162.130.86:10000:iIdwRjvyHuUDWFJAkRNV:RNW78Fm5'
+proxy_parts = proxy_string.split(':')
+
+if len(proxy_parts) == 4:
+    proxy_ip = proxy_parts[0]
+    proxy_port = int(proxy_parts[1])
+    proxy_username = proxy_parts[2]
+    proxy_password = proxy_parts[3]
+else:
+    raise ValueError('Invalid proxy string format. Expected format is ip:port:username:password')
 
 # Initialize Telethon Client using the existing .session file and proxy
-client = TelegramClient(session_file, api_id, api_hash, proxy=('socks5', proxy[0], proxy[1], True, proxy[2], proxy[3]))
+client = TelegramClient(
+    session_file,
+    api_id,
+    api_hash,
+    proxy=('socks5', proxy_ip, proxy_port, True, proxy_username, proxy_password)
+)
+
 async def handle_chat_with_gpt(event, messageText):
     print('Generating response')
     message = event.message
