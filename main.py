@@ -37,7 +37,6 @@ price_sent = {}
 chat_sessions = {}
 # Список пользователей, которым бот уже отправлял сообщения
 initiated_users = set()
-price_file = 'Прайс XFULL HOME.pdf'
 async def send_initial_message(user_id):
     await app.send_message(user_id,text='''Привет! Вы искали фулфилмент?
 Давайте сделаем расчет, какой у Вас товар и какое количество планируете в поставке?''')
@@ -95,15 +94,11 @@ async def handle_chat_with_gpt(message, messageText):
         content = msg.content[0].text.value
         print(f"{role.capitalize()}: {content}")
         print(chat_sessions)
-        if content == '.':
-            del chat_sessions[message.from_user.username]
-            if price == False:
-                await app.send_document(chat_id=message.from_user.username,
-                                        document='прайс с кейсами.pdf')
-            await app.send_message(chat_id= -4112547863, text=f"Клиент с ником @{message.from_user.username} готов к завершению сделки")
-        elif content == 'price':
-            price_sent[message.from_user.username] = True
-            await app.send_document(chat_id=message.from_user.username, document=price_file)
+        if 'send' in content:
+
+            await app.send_message(chat_id=-1002196552733, text=f"Клиент с ником @{message.from_user.username} готов к завершению сделки")
+            await app.send_message(chat_id=-1002196552733, text=content)
+            await app.send_message(chat_id=message.from_user.username, text='Передал ваш контакт менеджеру, скоро с вами свяжутся')
         else:
             await app.send_message(chat_id=message.from_user.username, text=content)
 
