@@ -39,6 +39,7 @@ async def forward_to_channel(client: Client, message: Message):
         )
 
         # Отправляем сформированное сообщение в указанный канал
+        await message.forward(target_channel_id)
         await app.send_message(target_channel_id, formatted_message)
 
 
