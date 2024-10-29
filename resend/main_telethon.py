@@ -22,8 +22,12 @@ async def forward_to_channel(client: Client, message: Message):
     if any(keyword.lower() in message.text.lower() for keyword in keywords):
         # Получаем информацию о чате, отправителе и тексте сообщения
         chat_title = message.chat.title or "Без названия"  # Название чата
-        chat_link = await client.export_chat_invite_link(message.chat.id) if message.chat.type in ["supergroup",
-                                                                                                   "channel"] else "Прямая ссылка не доступна"
+        if message.chat.username:
+            chat_link = f"https://t.me/{message.chat.username}"
+        else:
+            # Если username отсутствует, пытаемся получить приглашение в закрытую группу
+            chat_link = await client.export_chat_invite_link(message.chat.id) if message.chat.type in ["supergroup",
+                                                                                                       "channel"] else "Прямая ссылка не доступна"
         sender_username = f"@{message.from_user.username}" if message.from_user.username else "Без никнейма"
 
         # Формируем текст сообщения для пересылки
