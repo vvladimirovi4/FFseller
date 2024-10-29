@@ -65,9 +65,11 @@ async def handle_chat_with_gpt(message, messageText):
     message_answer = client.beta.threads.messages.create(
         thread_id=thread_id,
         role="user",
+        content= messageText
     )
     run = client.beta.threads.runs.create(
         thread_id=thread_id,
+        assistant_id=assistant_id,
     )
 
     time.sleep(10)
