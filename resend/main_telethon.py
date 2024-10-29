@@ -32,7 +32,7 @@ async def start(client, message):
         await message.reply("Канал, где вы являетесь администратором, не найден.")
 
 # Обработчик сообщений для пересылки в канал при наличии ключевых слов
-@app.on_message(filters.chat & ~filters.edited)
+@app.on_message(filters.chat)
 async def forward_to_channel(client, message: Message):
     global admin_channel_id
     if admin_channel_id:
