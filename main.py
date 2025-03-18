@@ -50,7 +50,6 @@ initial_messages = [
     "Добрый день! Интересует фулфилмент? Укажите, какой тип товара и объем поставки."
 ]
 
-
 async def send_initial_message(user_id):
     # Set a random delay between 1 and 2 minutes
     delay = random.randint(60, 120)
@@ -140,9 +139,11 @@ keywords_pattern = re.compile(r'\b(фулфилмент|прайс|расцен�
 
 @app.on_message(filters.text & filters.regex(keywords_pattern) & ~filters.private)
 async def detect_keywords_in_group(client, message):
+    # Проверяем, что сообщение не от бота (если в username есть "bot")
     user_id = message.from_user.username
-    if user_id not in initiated_users:
-        await send_initial_message(user_id)
+    if user_id and "bot" not in user_id.lower():
+        if user_id not in initiated_users:
+            await send_initial_message(user_id)
 
 
 @app.on_message(filters.command("stopchat"))
@@ -163,12 +164,14 @@ async def start_chat(client, message):
 
 @app.on_message(filters.private & ~filters.command("start"))
 async def private_message_handler(client, message):
+    # Проверяем, что сообщение не от бота (если в username есть "bot")
     user_id = message.from_user.username
-    if user_id in initiated_users:
-        await handle_chat_with_gpt(message, message.text)
-    else:
-        add_user(user_id)
-        await handle_chat_with_gpt(message, message.text)
+    if user_id and "bot" not in user_id.lower():
+        if user_id in initiated_users:
+            await handle_chat_with_gpt(message, message.text)
+        else:
+            add_user(user_id)
+            await handle_chat_with_gpt(message, message.text)
 
 
 app.run()
